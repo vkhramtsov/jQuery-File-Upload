@@ -28,7 +28,7 @@
       }
     ]
   , "support": {
-      "issues": "https://github.com/blueimp/jQuery-File-Upload/issues"
+      "forum": "https://groups.google.com/forum/#!forum/jquery-fileupload"
     }
   , "license": "MIT"
 }
