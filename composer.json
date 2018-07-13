@@ -32,7 +32,7 @@
     }
   , "license": "MIT"
   , "autoload": {
-      "files": [
+      "classmap": [
           "server/php/UploadHandler.php"
       ]
   }
