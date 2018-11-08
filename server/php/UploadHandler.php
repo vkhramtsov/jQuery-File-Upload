@@ -38,9 +38,9 @@ class UploadHandler
         'image_resize' => 'Failed to resize image'
     );
 
-    protected const IMAGETYPE_GIF = 1;
-    protected const IMAGETYPE_JPEG = 2;
-    protected const IMAGETYPE_PNG = 3;
+    const IMAGETYPE_GIF = 1;
+    const IMAGETYPE_JPEG = 2;
+    const IMAGETYPE_PNG = 3;
 
     protected $image_objects = array();
 
@@ -1047,13 +1047,18 @@ class UploadHandler
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
-        if ($this->options['image_library'] === 2) {
-            return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+        try {
+            if ($this->options['image_library'] === 2) {
+                return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+            }
+            if ($this->options['image_library'] && extension_loaded('imagick')) {
+                return $this->imagick_create_scaled_image($file_name, $version, $options);
+            }
+            return $this->gd_create_scaled_image($file_name, $version, $options);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            return false;
         }
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
-            return $this->imagick_create_scaled_image($file_name, $version, $options);
-        }
-        return $this->gd_create_scaled_image($file_name, $version, $options);
     }
 
     protected function destroy_image_object($file_path) {
@@ -1066,12 +1071,12 @@ class UploadHandler
         $fp = fopen($file_path, 'r');
         $data = fread($fp, 4);
         fclose($fp);
-        // GIF: 47 49 46
-        if (substr($data, 0, 3) === 'GIF') {
+        // GIF: 47 49 46 38
+        if ($data === 'GIF8') {
             return self::IMAGETYPE_GIF;
         }
-        // JPG: FF D8
-        if (bin2hex(substr($data, 0, 2)) === 'ffd8') {
+        // JPG: FF D8 FF
+        if (bin2hex(substr($data, 0, 3)) === 'ffd8ff') {
             return self::IMAGETYPE_JPEG;
         }
         // PNG: 89 50 4E 47
@@ -1082,6 +1087,9 @@ class UploadHandler
     }
 
     protected function is_valid_image_file($file_path) {
+        if (!preg_match('/\.(gif|jpe?g|png)$/i', $file_path)) {
+            return false;
+        }
         return !!$this->imagetype($file_path);
     }
 
