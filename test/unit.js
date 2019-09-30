@@ -249,9 +249,9 @@
       expect(eventsData.dragover).to.equal();
       expect(eventsData.dragenter).to.equal();
       expect(eventsData.dragleave).to.equal();
-      expect(eventsData.drop).to.deep.equal();
+      expect(eventsData.drop).to.equal();
       pasteZone.trigger($.Event('paste', eventObject));
-      expect(eventsData.paste).to.deep.equal();
+      expect(eventsData.paste).to.equal();
     });
 
     it('disable', function() {
@@ -291,11 +291,11 @@
       expect(eventsData.dragover).to.equal();
       expect(eventsData.dragenter).to.equal();
       expect(eventsData.dragleave).to.equal();
-      expect(eventsData.drop).to.deep.equal();
+      expect(eventsData.drop).to.equal();
       form
         .fileupload('option', 'pasteZone')
         .trigger($.Event('paste', eventObject));
-      expect(eventsData.paste).to.deep.equal();
+      expect(eventsData.paste).to.equal();
     });
 
     it('enable', function() {
@@ -774,9 +774,6 @@
       form.fileupload({
         sequentialUploads: true,
         dataType: 'json',
-        start: function() {
-          events.push('start');
-        },
         send: function() {
           events.push('send');
         },
@@ -785,20 +782,19 @@
           completed++;
         },
         stop: function() {
-          events.push('stop');
           if (completed === 4) {
-            expect(events).to.deep.equal([
-              'start',
-              'send',
-              'complete',
-              'send',
-              'complete',
-              'send',
-              'complete',
-              'send',
-              'complete',
-              'stop'
-            ]);
+            expect(events.join(',')).to.equal(
+              [
+                'send',
+                'complete',
+                'send',
+                'complete',
+                'send',
+                'complete',
+                'send',
+                'complete'
+              ].join(',')
+            );
             done();
           }
         }
@@ -890,20 +886,22 @@
           expect(uploadedFile.size).to.equal(fileGIF.size);
         },
         stop: function() {
-          expect(events).to.deep.equal([
-            'chunkbeforesend',
-            'chunksend',
-            'chunkdone',
-            'chunkbeforesend',
-            'chunksend',
-            'chunkdone',
-            'chunkbeforesend',
-            'chunksend',
-            'chunkdone',
-            'chunkbeforesend',
-            'chunksend',
-            'chunkdone'
-          ]);
+          expect(events.join(',')).to.equal(
+            [
+              'chunkbeforesend',
+              'chunksend',
+              'chunkdone',
+              'chunkbeforesend',
+              'chunksend',
+              'chunkdone',
+              'chunkbeforesend',
+              'chunksend',
+              'chunkdone',
+              'chunkbeforesend',
+              'chunksend',
+              'chunkdone'
+            ].join(',')
+          );
           done();
         }
       });
