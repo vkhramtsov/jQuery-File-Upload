@@ -21,6 +21,7 @@
       'load-image-meta',
       'load-image-scale',
       'load-image-exif',
+      'load-image-orientation',
       'canvas-to-blob',
       './jquery.fileupload-process'
     ], factory);
@@ -32,6 +33,7 @@
       require('blueimp-load-image/js/load-image-meta'),
       require('blueimp-load-image/js/load-image-scale'),
       require('blueimp-load-image/js/load-image-exif'),
+      require('blueimp-load-image/js/load-image-orientation'),
       require('blueimp-canvas-to-blob'),
       require('./jquery.fileupload-process')
     );
@@ -212,15 +214,17 @@
             data.preview = newImg;
             dfd.resolveWith(that, [data]);
           },
-          thumbnail;
+          thumbnail,
+          thumbnailBlob;
         if (data.exif) {
           if (options.orientation === true) {
             options.orientation = data.exif.get('Orientation');
           }
           if (options.thumbnail) {
             thumbnail = data.exif.get('Thumbnail');
-            if (thumbnail) {
-              loadImage(thumbnail, resolve, options);
+            thumbnailBlob = thumbnail && thumbnail.get('Blob');
+            if (thumbnailBlob) {
+              loadImage(thumbnailBlob, resolve, options);
               return dfd.promise();
             }
           }
